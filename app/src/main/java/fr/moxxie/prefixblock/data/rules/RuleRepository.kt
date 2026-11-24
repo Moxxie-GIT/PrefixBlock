@@ -41,6 +41,11 @@ sealed interface SaveRuleResult {
 interface RuleRepository {
     fun observeRules(): Flow<List<Rule>>
     suspend fun getRules(): List<Rule>
+    suspend fun getRule(id: Long): Rule?
+
+    /** Valide et normalise une saisie sans l'enregistrer (aperçu en direct dans l'éditeur). */
+    fun validate(draft: RuleDraft): PatternValidation
+
     suspend fun addRule(draft: RuleDraft): SaveRuleResult
     suspend fun updateRule(id: Long, draft: RuleDraft): SaveRuleResult
     suspend fun deleteRule(id: Long)
@@ -60,6 +65,8 @@ class RoomRuleRepository @Inject constructor(
         dao.observeAll().map { entities -> entities.map(RuleEntity::toDomain) }
 
     override suspend fun getRules(): List<Rule> = dao.getAll().map(RuleEntity::toDomain)
+
+    override suspend fun getRule(id: Long): Rule? = dao.getById(id)?.toDomain()
 
     override suspend fun addRule(draft: RuleDraft): SaveRuleResult {
         val pattern = when (val validation = validate(draft)) {
@@ -101,7 +108,7 @@ class RoomRuleRepository @Inject constructor(
 
     override suspend fun setPriority(id: Long, priority: Boolean) = dao.setPriority(id, priority)
 
-    private fun validate(draft: RuleDraft): PatternValidation =
+    override fun validate(draft: RuleDraft): PatternValidation =
         validator.validate(draft.list, draft.type, draft.input, regionProvider.currentRegion())
 
     private fun RuleDraft.toRule(id: Long, pattern: String) = Rule(

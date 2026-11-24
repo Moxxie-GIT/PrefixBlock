@@ -7,8 +7,11 @@ import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.lazy.items
-import androidx.compose.foundation.selection.toggleable
+import androidx.compose.foundation.clickable
+import androidx.compose.foundation.layout.PaddingValues
 import androidx.compose.material3.ExperimentalMaterial3Api
+import androidx.compose.material3.ExtendedFloatingActionButton
+import androidx.compose.material3.Icon
 import androidx.compose.material3.ListItem
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.PrimaryTabRow
@@ -23,8 +26,8 @@ import androidx.compose.runtime.mutableIntStateOf
 import androidx.compose.runtime.saveable.rememberSaveable
 import androidx.compose.runtime.setValue
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.res.stringResource
-import androidx.compose.ui.semantics.Role
 import androidx.compose.ui.text.font.FontFamily
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
@@ -65,6 +68,8 @@ private enum class RulesTab(
 @Composable
 fun RulesScreen(
     initialShowWhitelist: Boolean,
+    onAddRule: (whitelist: Boolean) -> Unit,
+    onEditRule: (Rule) -> Unit,
     viewModel: RulesViewModel = hiltViewModel(),
 ) {
     val uiState by viewModel.uiState.collectAsStateWithLifecycle()
@@ -72,6 +77,8 @@ fun RulesScreen(
         uiState = uiState,
         initialShowWhitelist = initialShowWhitelist,
         onToggleEnabled = viewModel::setEnabled,
+        onAddRule = onAddRule,
+        onEditRule = onEditRule,
     )
 }
 
@@ -82,6 +89,8 @@ fun RulesContent(
     uiState: RulesUiState,
     initialShowWhitelist: Boolean,
     onToggleEnabled: (Rule, Boolean) -> Unit,
+    onAddRule: (whitelist: Boolean) -> Unit,
+    onEditRule: (Rule) -> Unit,
     modifier: Modifier = Modifier,
 ) {
     var selectedTab by rememberSaveable {
@@ -95,6 +104,13 @@ fun RulesContent(
 
     Scaffold(
         topBar = { TopAppBar(title = { Text(stringResource(R.string.nav_rules)) }) },
+        floatingActionButton = {
+            ExtendedFloatingActionButton(
+                onClick = { onAddRule(tab == RulesTab.WHITELIST) },
+                icon = { Icon(painterResource(R.drawable.ic_add), contentDescription = null) },
+                text = { Text(stringResource(R.string.rules_add)) },
+            )
+        },
         modifier = modifier,
     ) { padding ->
         Column(
@@ -118,7 +134,7 @@ fun RulesContent(
                     title = stringResource(tab.emptyTitle),
                     body = stringResource(tab.emptyBody),
                 )
-                else -> LazyColumn {
+                else -> LazyColumn(contentPadding = PaddingValues(bottom = FAB_CLEARANCE)) {
                     item {
                         Text(
                             text = stringResource(tab.hint),
@@ -128,7 +144,7 @@ fun RulesContent(
                         )
                     }
                     items(rules, key = { it.id }) { rule ->
-                        RuleRow(rule = rule, onToggleEnabled = onToggleEnabled)
+                        RuleRow(rule = rule, onEdit = onEditRule, onToggleEnabled = onToggleEnabled)
                     }
                 }
             }
@@ -136,8 +152,9 @@ fun RulesContent(
     }
 }
 
+/** Toucher la ligne ouvre l'éditeur ; l'interrupteur active ou désactive la règle. */
 @Composable
-private fun RuleRow(rule: Rule, onToggleEnabled: (Rule, Boolean) -> Unit) {
+private fun RuleRow(rule: Rule, onEdit: (Rule) -> Unit, onToggleEnabled: (Rule, Boolean) -> Unit) {
     ListItem(
         headlineContent = {
             Text(
@@ -146,12 +163,10 @@ private fun RuleRow(rule: Rule, onToggleEnabled: (Rule, Boolean) -> Unit) {
             )
         },
         supportingContent = { Text(ruleDescription(rule)) },
-        trailingContent = { Switch(checked = rule.enabled, onCheckedChange = null) },
-        modifier = Modifier.toggleable(
-            value = rule.enabled,
-            role = Role.Switch,
-            onValueChange = { onToggleEnabled(rule, it) },
-        ),
+        trailingContent = {
+            Switch(checked = rule.enabled, onCheckedChange = { onToggleEnabled(rule, it) })
+        },
+        modifier = Modifier.clickable(onClick = { onEdit(rule) }),
     )
 }
 
@@ -175,6 +190,11 @@ private fun RulesPreview() {
             ),
             initialShowWhitelist = false,
             onToggleEnabled = { _, _ -> },
+            onAddRule = {},
+            onEditRule = {},
         )
     }
 }
+
+/** Marge sous la liste pour que le bouton « Ajouter » ne masque pas la dernière règle. */
+private val FAB_CLEARANCE = 88.dp

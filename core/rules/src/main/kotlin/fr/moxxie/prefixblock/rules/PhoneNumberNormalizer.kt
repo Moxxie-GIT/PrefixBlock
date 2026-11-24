@@ -28,6 +28,21 @@ data class NormalizedNumber(
 }
 
 /**
+ * Indicatif(s) couverts par un préfixe de règle.
+ *
+ * @property countryCode indicatif pays du préfixe, ou `null` si le préfixe est plus court qu'un
+ * indicatif et en couvre donc plusieurs (ex. `+3` : une grande partie de l'Europe).
+ * @property regionCodes régions ISO 3166-1 de cet indicatif (`"001"` : service non géographique,
+ * ex. Inmarsat +870).
+ * @property wholeCountryCode le préfixe est exactement l'indicatif : il couvre tout le pays.
+ */
+data class PrefixCoverage(
+    val countryCode: Int?,
+    val regionCodes: List<String>,
+    val wholeCountryCode: Boolean,
+)
+
+/**
  * Normalise les numéros présentés par Android, avec Google libphonenumber (métadonnées
  * embarquées, aucun accès réseau).
  *
@@ -75,6 +90,34 @@ class PhoneNumberNormalizer {
     fun warmUp(defaultRegion: String?) {
         normalize("+33100000000", defaultRegion)
         normalize("0000000000", defaultRegion)
+    }
+
+    /**
+     * Ce que couvre un préfixe de règle déjà validé (`+…`), pour l'afficher à l'utilisateur :
+     * `+44` couvre tout le Royaume-Uni et ses dépendances, `+4475` seulement une partie.
+     *
+     * @return `null` si [prefix] n'est pas de la forme `+chiffres`.
+     */
+    fun prefixCoverage(prefix: String): PrefixCoverage? {
+        val digits = prefix.removePrefix("+")
+        if (!prefix.startsWith('+') || digits.isEmpty() || !digits.all { it in '0'..'9' }) return null
+        val countryCode = countryCodeOf(digits)
+            ?: return PrefixCoverage(countryCode = null, regionCodes = emptyList(), wholeCountryCode = false)
+        return PrefixCoverage(
+            countryCode = countryCode,
+            regionCodes = util.getRegionCodesForCountryCode(countryCode).toList(),
+            wholeCountryCode = digits == countryCode.toString(),
+        )
+    }
+
+    /**
+     * Forme lisible d'un numéro international (`+870773111632` → `+870 773 111 632`), pour
+     * l'affichage uniquement. Renvoie [international] tel quel s'il n'est pas interprétable.
+     */
+    fun formatForDisplay(international: String): String {
+        if (!international.startsWith('+')) return international
+        val parsed = parseOrNull(international, UNKNOWN_REGION) ?: return international
+        return util.format(parsed, PhoneNumberFormat.INTERNATIONAL)
     }
 
     private fun explicitInternational(raw: String, digits: String): NormalizedNumber {

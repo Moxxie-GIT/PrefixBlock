@@ -3,6 +3,7 @@ package fr.moxxie.prefixblock.ui.dashboard
 import fr.moxxie.prefixblock.data.history.BlockedCall
 import fr.moxxie.prefixblock.data.history.FakeBlockedCallRepository
 import fr.moxxie.prefixblock.data.role.CallScreeningRoleRepository
+import fr.moxxie.prefixblock.rules.PhoneNumberNormalizer
 import fr.moxxie.prefixblock.rules.RuleType
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.ExperimentalCoroutinesApi
@@ -21,6 +22,7 @@ import org.junit.Test
 import java.time.Clock
 import java.time.Instant
 import java.time.ZoneOffset
+import java.util.Locale
 
 @OptIn(ExperimentalCoroutinesApi::class)
 class DashboardViewModelTest {
@@ -40,7 +42,7 @@ class DashboardViewModelTest {
     fun tearDown() = Dispatchers.resetMain()
 
     private fun TestScope.viewModel(role: CallScreeningRoleRepository) =
-        DashboardViewModel(role, history, clock).also { vm ->
+        DashboardViewModel(role, history, PhoneNumberNormalizer(), clock, Locale.FRANCE).also { vm ->
             backgroundScope.launch(UnconfinedTestDispatcher(testScheduler)) { vm.uiState.collect {} }
         }
 
@@ -88,7 +90,7 @@ class DashboardViewModelTest {
         assertEquals(1, state.blockedToday)
         assertEquals(2, state.blockedThisWeek)
         assertEquals(3, state.blockedThisMonth)
-        assertEquals(listOf(4L, 3L, 2L, 1L), state.recentCalls.map { it.id })
+        assertEquals(listOf(4L, 3L, 2L, 1L), state.recentCalls.map { it.call.id })
     }
 
     @Test
@@ -99,13 +101,13 @@ class DashboardViewModelTest {
         history.calls.value = listOf(call(1, "2026-11-24T11:59:00Z"))
 
         assertEquals(1, viewModel.uiState.value.blockedToday)
-        assertEquals("+870773111632", viewModel.uiState.value.recentCalls.single().number)
+        assertEquals("+870 773 111 632", viewModel.uiState.value.recentCalls.single().displayNumber)
     }
 
     @Test
     fun `only the latest calls are listed`() = runTest {
         history.calls.value = (1L..8L).map { call(it, "2026-11-24T0$it:00:00Z") }
         val recent = viewModel(FakeRoleRepository(held = true)).uiState.value.recentCalls
-        assertEquals(listOf(8L, 7L, 6L, 5L, 4L), recent.map { it.id })
+        assertEquals(listOf(8L, 7L, 6L, 5L, 4L), recent.map { it.call.id })
     }
 }

@@ -13,8 +13,8 @@ import androidx.compose.ui.platform.LocalContext
  * Thème Material 3 de PrefixBlock.
  *
  * @param dynamicColor utilise les couleurs du fond d'écran (Material You, Android 12+).
- * Désactivé par défaut pour garder une identité visuelle sobre et constante ;
- * deviendra un réglage utilisateur (DataStore) en phase 4.
+ * Désactivé par défaut pour garder une identité visuelle sobre et constante ; réglable dans
+ * Paramètres > Apparence (`SettingsRepository.dynamicColor`).
  */
 @Composable
 fun PrefixBlockTheme(

@@ -1,6 +1,5 @@
 package fr.moxxie.prefixblock.ui.dashboard
 
-import android.text.format.DateUtils
 import androidx.annotation.StringRes
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Column
@@ -41,11 +40,13 @@ import androidx.lifecycle.compose.collectAsStateWithLifecycle
 import fr.moxxie.prefixblock.R
 import fr.moxxie.prefixblock.data.history.BlockedCall
 import fr.moxxie.prefixblock.rules.RuleType
+import fr.moxxie.prefixblock.ui.components.DisplayedCall
 import fr.moxxie.prefixblock.ui.components.SectionHeader
+import fr.moxxie.prefixblock.ui.components.appLocale
+import fr.moxxie.prefixblock.ui.components.formatCallTimeCompact
 import fr.moxxie.prefixblock.ui.components.labelRes
 import fr.moxxie.prefixblock.ui.components.rememberScreeningRoleRequest
 import fr.moxxie.prefixblock.ui.theme.PrefixBlockTheme
-import java.text.DateFormat
 
 @Composable
 fun DashboardScreen(
@@ -200,13 +201,12 @@ private fun StatTile(value: Int, @StringRes label: Int, modifier: Modifier = Mod
 }
 
 @Composable
-private fun RecentCallRow(call: BlockedCall) {
-    val time = remember(call.timestamp) {
-        DateUtils.formatSameDayTime(call.timestamp, System.currentTimeMillis(), DateFormat.SHORT, DateFormat.SHORT)
-            .toString()
-    }
+private fun RecentCallRow(displayed: DisplayedCall) {
+    val call = displayed.call
+    val locale = appLocale()
+    val time = remember(call.timestamp, locale) { formatCallTimeCompact(call.timestamp, locale) }
     ListItem(
-        headlineContent = { Text(call.number) },
+        headlineContent = { Text(displayed.displayNumber) },
         supportingContent = {
             Text(stringResource(R.string.dashboard_recent_call_rule, call.rulePattern, stringResource(call.ruleType.labelRes)))
         },
@@ -247,7 +247,10 @@ private fun DashboardActivePreview() {
                 blockedThisWeek = 4,
                 blockedThisMonth = 9,
                 recentCalls = listOf(
-                    BlockedCall(1, System.currentTimeMillis(), "+870773111632", 870, 1, "+870", RuleType.PREFIX),
+                    DisplayedCall(
+                        BlockedCall(1, System.currentTimeMillis(), "+870773111632", 870, 1, "+870", RuleType.PREFIX),
+                        "+870 773 111 632",
+                    ),
                 ),
             ),
             {}, {}, {},

@@ -2,6 +2,11 @@
 <!-- Langue par défaut de l'application : français. -->
 <resources xmlns:tools="http://schemas.android.com/tools" tools:locale="fr">
     <string name="app_name" translatable="false">PrefixBlock</string>
+    <!--
+      Langue de cette traduction (BCP 47). Dates, noms de pays et début de semaine sont formatés
+      dans cette langue, pour rester cohérents avec les textes même si le téléphone est en anglais.
+    -->
+    <string name="app_locale">fr-FR</string>
 
     <!-- Navigation -->
     <string name="nav_dashboard">Accueil</string>
@@ -43,10 +48,78 @@
     <string name="rule_type_prefix">Préfixe</string>
     <string name="rule_type_regex">Expression régulière</string>
     <string name="rule_priority">Prioritaire</string>
+    <string name="rules_add">Ajouter</string>
+
+    <!-- Actions communes -->
+    <string name="action_save">Enregistrer</string>
+    <string name="action_cancel">Annuler</string>
+    <string name="action_close">Fermer</string>
+    <string name="action_delete">Supprimer</string>
+
+    <!-- Éditeur de règle -->
+    <string name="rule_editor_title_new_blacklist">Nouvelle règle de blocage</string>
+    <string name="rule_editor_title_new_whitelist">Nouvelle autorisation</string>
+    <string name="rule_editor_title_edit">Modifier la règle</string>
+    <string name="rule_editor_type">Type de règle</string>
+    <string name="rule_type_regex_short">Regex</string>
+    <string name="rule_editor_hint_number">Numéro complet, international (+590 690 12 34 56) ou national (0690 12 34 56).</string>
+    <string name="rule_editor_hint_prefix">Début du numéro international, ex. +870 ou +1876.</string>
+    <string name="rule_editor_hint_regex">Testée sur le numéro international, ex. ^\\+4475\\d{8}$</string>
+    <!-- %1$s : motif normalisé (ex. +870). -->
+    <string name="rule_editor_normalized">Sera enregistré sous la forme %1$s</string>
+    <string name="rule_editor_label">Nom (facultatif)</string>
+    <string name="rule_editor_priority_body">Appliquée avant les autres préfixes et expressions, même plus précis.</string>
+    <string name="rule_editor_enabled">Activée</string>
+    <string name="rule_editor_delete">Supprimer la règle</string>
+    <string name="rule_editor_delete_confirm_title">Supprimer cette règle ?</string>
+    <string name="rule_editor_delete_confirm_body">Les appels déjà rejetés restent dans l\'historique.</string>
+    <!-- %1$d : indicatif (ex. 44) ; %2$s : pays (ex. Royaume-Uni, Guernesey). -->
+    <string name="rule_editor_coverage">Indicatif +%1$d : %2$s</string>
+    <string name="rule_editor_coverage_non_geo">Indicatif +%1$d : service international non géographique</string>
+    <string name="rule_editor_coverage_multiple">Ce préfixe couvre plusieurs indicatifs pays.</string>
+    <string name="rule_editor_coverage_whole_country">Tous les appels de cet indicatif seront rejetés.</string>
+    <!-- %1$s : premiers pays ; %2$d : nombre de pays non listés. -->
+    <plurals name="rule_editor_coverage_more">
+        <item quantity="one">%1$s et %2$d autre</item>
+        <item quantity="many">%1$s et %2$d autres</item>
+        <item quantity="other">%1$s et %2$d autres</item>
+    </plurals>
+
+    <!-- Erreurs de saisie -->
+    <string name="pattern_error_empty">Saisissez un motif.</string>
+    <string name="pattern_error_prefix_format">Un préfixe commence par + ou 00, suivi de chiffres (ex. +870).</string>
+    <string name="pattern_error_prefix_too_long">Préfixe trop long (15 chiffres au maximum).</string>
+    <string name="pattern_error_number_format">Numéro non reconnu : utilisez le format international (+…) ou national.</string>
+    <string name="pattern_error_regex_syntax">Expression régulière invalide.</string>
+    <string name="pattern_error_regex_too_long">Expression trop longue (200 caractères au maximum).</string>
+    <string name="pattern_error_regex_too_broad">Cette expression rejetterait les appels de tous les pays.</string>
+    <string name="save_error_duplicate">Cette règle existe déjà dans cette liste.</string>
+    <string name="save_error_not_found">Cette règle n\'existe plus.</string>
 
     <!-- Historique -->
     <string name="history_empty_title">Aucun appel bloqué</string>
     <string name="history_empty_body">Les appels rejetés par PrefixBlock apparaîtront ici.</string>
+    <string name="history_search">Rechercher un numéro</string>
+    <string name="history_period_all">Tout</string>
+    <string name="history_period_today">Aujourd\'hui</string>
+    <string name="history_period_7_days">7 jours</string>
+    <string name="history_period_30_days">30 jours</string>
+    <string name="history_filtered_empty_title">Aucun appel trouvé</string>
+    <string name="history_filtered_empty_body">Modifiez la recherche ou la période.</string>
+    <string name="history_more_actions">Plus d\'actions</string>
+    <string name="history_allow_number">Autoriser ce numéro</string>
+    <!-- %1$s : indicatif (ex. +870). -->
+    <string name="history_allow_prefix">Autoriser l\'indicatif %1$s</string>
+    <string name="history_delete">Supprimer de l\'historique</string>
+    <string name="history_delete_all">Tout effacer</string>
+    <string name="history_delete_all_confirm_title">Effacer tout l\'historique ?</string>
+    <string name="history_delete_all_confirm_body">Les règles ne sont pas modifiées.</string>
+    <!-- %1$s : numéro. -->
+    <string name="history_number_allowed">%1$s ajouté à la liste blanche</string>
+    <!-- %1$s : indicatif. -->
+    <string name="history_prefix_allowed">Indicatif %1$s ajouté à la liste blanche</string>
+    <string name="history_already_allowed">Déjà dans la liste blanche</string>
+    <string name="history_cannot_allow">Numéro incomplet : impossible de l\'autoriser</string>
 
     <!-- Détection -->
     <string name="detection_observation_title">Mode observation</string>
@@ -64,6 +137,43 @@
     <string name="settings_section_privacy">Confidentialité</string>
     <string name="settings_privacy_offline">Fonctionnement hors ligne</string>
     <string name="settings_privacy_offline_body">Les règles et l\'historique restent sur ce téléphone. Aucun numéro n\'est transmis à un serveur.</string>
+    <string name="settings_permissions">Permissions</string>
+    <string name="settings_permissions_body">Aucun accès aux contacts, aux SMS ni au journal d\'appels. Seul le rôle de filtrage des appels est utilisé.</string>
+    <string name="settings_section_appearance">Apparence</string>
+    <string name="settings_dynamic_color">Couleurs du fond d\'écran</string>
+    <string name="settings_dynamic_color_body">Adapte les couleurs de l\'application à votre fond d\'écran (Material You).</string>
+    <string name="settings_section_backup">Sauvegarde des règles</string>
+    <string name="settings_export">Exporter les règles</string>
+    <string name="settings_export_body">Fichier JSON enregistré où vous voulez, sur le téléphone ou ailleurs.</string>
+    <string name="settings_import">Importer des règles</string>
+    <string name="settings_import_body">Les règles absentes sont ajoutées ; les vôtres ne sont ni modifiées ni supprimées.</string>
+    <plurals name="settings_exported">
+        <item quantity="one">%d règle exportée</item>
+        <item quantity="many">%d règles exportées</item>
+        <item quantity="other">%d règles exportées</item>
+    </plurals>
+    <string name="settings_export_failed">Échec de l\'export : fichier non enregistré</string>
+    <!-- Bilan d'import : %1$s, %2$s, %3$s sont les trois compteurs ci-dessous. -->
+    <string name="settings_import_report">Import : %1$s, %2$s, %3$s</string>
+    <plurals name="settings_import_added">
+        <item quantity="one">%d ajoutée</item>
+        <item quantity="many">%d ajoutées</item>
+        <item quantity="other">%d ajoutées</item>
+    </plurals>
+    <plurals name="settings_import_present">
+        <item quantity="one">%d déjà présente</item>
+        <item quantity="many">%d déjà présentes</item>
+        <item quantity="other">%d déjà présentes</item>
+    </plurals>
+    <plurals name="settings_import_invalid">
+        <item quantity="one">%d ignorée</item>
+        <item quantity="many">%d ignorées</item>
+        <item quantity="other">%d ignorées</item>
+    </plurals>
+    <string name="settings_import_not_backup">Ce fichier n\'est pas une sauvegarde PrefixBlock.</string>
+    <!-- %1$d : version du fichier. -->
+    <string name="settings_import_unsupported">Sauvegarde trop récente (version %1$d) : mettez PrefixBlock à jour.</string>
+    <string name="settings_import_read_error">Fichier illisible.</string>
     <string name="settings_section_about">À propos</string>
     <string name="settings_version">Version</string>
 </resources>

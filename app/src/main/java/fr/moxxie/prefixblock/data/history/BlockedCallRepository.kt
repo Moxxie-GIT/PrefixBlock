@@ -31,6 +31,14 @@ interface BlockedCallRepository {
     suspend fun record(number: NormalizedNumber, rule: Rule)
     fun observeRecent(limit: Int): Flow<List<BlockedCall>>
     fun observeCountSince(sinceMillis: Long): Flow<Int>
+
+    /**
+     * @param sinceMillis appels à partir de cette date (0 : tout l'historique).
+     * @param numberDigits chiffres contenus dans le numéro (vide : pas de recherche).
+     */
+    fun observe(sinceMillis: Long, numberDigits: String): Flow<List<BlockedCall>>
+    suspend fun delete(id: Long)
+    suspend fun deleteAll()
 }
 
 @Singleton
@@ -60,6 +68,13 @@ class RoomBlockedCallRepository @Inject constructor(
         dao.observeRecent(limit).map { calls -> calls.map(BlockedCallEntity::toDomain) }
 
     override fun observeCountSince(sinceMillis: Long): Flow<Int> = dao.observeCountSince(sinceMillis)
+
+    override fun observe(sinceMillis: Long, numberDigits: String): Flow<List<BlockedCall>> =
+        dao.observeFiltered(sinceMillis, numberDigits).map { calls -> calls.map(BlockedCallEntity::toDomain) }
+
+    override suspend fun delete(id: Long) = dao.deleteById(id)
+
+    override suspend fun deleteAll() = dao.deleteAll()
 }
 
 private fun BlockedCallEntity.toDomain() = BlockedCall(

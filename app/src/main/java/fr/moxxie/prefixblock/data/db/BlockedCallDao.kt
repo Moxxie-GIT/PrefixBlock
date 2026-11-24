@@ -11,8 +11,18 @@ interface BlockedCallDao {
     @Insert
     suspend fun insert(call: BlockedCallEntity): Long
 
-    @Query("SELECT * FROM blocked_calls ORDER BY timestamp DESC")
-    fun observeAll(): Flow<List<BlockedCallEntity>>
+    /**
+     * Historique filtré pour l'écran Historique.
+     * @param digits chiffres recherchés dans le numéro (chaîne vide : pas de recherche).
+     */
+    @Query(
+        """
+        SELECT * FROM blocked_calls
+        WHERE timestamp >= :since AND (:digits = '' OR number LIKE '%' || :digits || '%')
+        ORDER BY timestamp DESC
+        """,
+    )
+    fun observeFiltered(since: Long, digits: String): Flow<List<BlockedCallEntity>>
 
     @Query("SELECT * FROM blocked_calls ORDER BY timestamp DESC LIMIT :limit")
     fun observeRecent(limit: Int): Flow<List<BlockedCallEntity>>

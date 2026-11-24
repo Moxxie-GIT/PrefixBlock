@@ -44,6 +44,14 @@ android {
         compose = true
         buildConfig = true
     }
+
+    bundle {
+        // Les pluriels sont résolus dans la langue des textes (ui/components/AppLocale.kt) :
+        // toutes les langues doivent rester dans l'installation, même distribuée en App Bundle.
+        language {
+            enableSplit = false
+        }
+    }
 }
 
 room {
@@ -81,6 +89,8 @@ dependencies {
     implementation(libs.hilt.android)
     ksp(libs.hilt.compiler)
     implementation(libs.androidx.hilt.lifecycle.viewmodel.compose)
+
+    implementation(libs.androidx.datastore.preferences)
 
     implementation(libs.androidx.room.runtime)
     implementation(libs.androidx.room.ktx)

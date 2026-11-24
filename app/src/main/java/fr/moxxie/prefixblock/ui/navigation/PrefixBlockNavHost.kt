@@ -14,7 +14,9 @@ import androidx.navigation.toRoute
 import fr.moxxie.prefixblock.ui.dashboard.DashboardScreen
 import fr.moxxie.prefixblock.ui.detection.DetectionScreen
 import fr.moxxie.prefixblock.ui.history.HistoryScreen
+import fr.moxxie.prefixblock.rules.RuleList
 import fr.moxxie.prefixblock.ui.rules.RulesScreen
+import fr.moxxie.prefixblock.ui.rules.editor.RuleEditorScreen
 import fr.moxxie.prefixblock.ui.settings.SettingsScreen
 
 @Composable
@@ -38,7 +40,19 @@ fun PrefixBlockNavHost(
             )
         }
         composable<RulesRoute> { entry ->
-            RulesScreen(initialShowWhitelist = entry.toRoute<RulesRoute>().showWhitelist)
+            RulesScreen(
+                initialShowWhitelist = entry.toRoute<RulesRoute>().showWhitelist,
+                onAddRule = { whitelist -> navController.navigate(RuleEditorRoute(whitelist = whitelist)) },
+                onEditRule = { rule -> navController.navigate(RuleEditorRoute(ruleId = rule.id)) },
+            )
+        }
+        composable<RuleEditorRoute> { entry ->
+            val route = entry.toRoute<RuleEditorRoute>()
+            RuleEditorScreen(
+                ruleId = route.ruleId.takeIf { it != RuleEditorRoute.NEW_RULE },
+                list = if (route.whitelist) RuleList.WHITELIST else RuleList.BLACKLIST,
+                onClose = { navController.popBackStack() },
+            )
         }
         composable<HistoryRoute> { HistoryScreen() }
         composable<DetectionRoute> { DetectionScreen() }

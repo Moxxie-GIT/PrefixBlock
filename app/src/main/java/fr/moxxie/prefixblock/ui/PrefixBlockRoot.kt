@@ -26,9 +26,13 @@ fun PrefixBlockRoot() {
     val backStackEntry by navController.currentBackStackEntryAsState()
     val currentDestination = backStackEntry?.destination
 
+    // Les écrans secondaires (éditeur de règle…) occupent tout l'écran.
+    val onTopLevel = currentDestination == null ||
+        TopLevelDestination.entries.any { currentDestination.isOnTopLevel(it) }
+
     Scaffold(
         bottomBar = {
-            NavigationBar {
+            if (onTopLevel) NavigationBar {
                 TopLevelDestination.entries.forEach { destination ->
                     val selected = currentDestination.isOnTopLevel(destination)
                     NavigationBarItem(

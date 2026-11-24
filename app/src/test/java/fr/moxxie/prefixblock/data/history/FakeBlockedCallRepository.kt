@@ -31,4 +31,14 @@ class FakeBlockedCallRepository(initial: List<BlockedCall> = emptyList()) : Bloc
 
     override fun observeCountSince(sinceMillis: Long): Flow<Int> =
         calls.map { list -> list.count { it.timestamp >= sinceMillis } }
+
+    override fun observe(sinceMillis: Long, numberDigits: String): Flow<List<BlockedCall>> =
+        calls.map { list ->
+            list.filter { it.timestamp >= sinceMillis && numberDigits in it.number }
+                .sortedByDescending { it.timestamp }
+        }
+
+    override suspend fun delete(id: Long) = calls.update { list -> list.filterNot { it.id == id } }
+
+    override suspend fun deleteAll() = calls.update { emptyList() }
 }

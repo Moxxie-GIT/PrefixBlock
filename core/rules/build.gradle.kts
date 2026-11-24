@@ -4,6 +4,7 @@ import org.jetbrains.kotlin.gradle.dsl.JvmTarget
 // Toute la logique de décision (normalisation, validation, priorité) vit ici et se teste sur la JVM.
 plugins {
     alias(libs.plugins.kotlin.jvm)
+    alias(libs.plugins.kotlin.serialization)
 }
 
 java {
@@ -19,6 +20,7 @@ kotlin {
 
 dependencies {
     implementation(libs.libphonenumber)
+    implementation(libs.kotlinx.serialization.json)
 
     testImplementation(libs.junit)
 }

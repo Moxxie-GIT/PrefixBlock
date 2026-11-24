@@ -61,9 +61,9 @@ MSYS_NO_PATHCONV=1 "$ADB" shell "am broadcast $R.SCREEN --es number '00870773111
 | UI | Jetpack Compose (BOM 2026.09.00), Material 3 1.4.0, Navigation Compose 2.10 à routes typées |
 | Architecture | MVVM : ViewModel + `StateFlow<UiState>`, Coroutines/Flow |
 | DI | Hilt 2.60.1 via KSP 2.3.14 |
-| Données | Room 2.8.5 (règles, historique), DataStore (préférences, à partir de la phase 3) |
+| Données | Room 2.8.5 (règles, historique), DataStore Preferences 1.3.0 (réglages) |
 | Numéros | Google libphonenumber 9.0.44 (métadonnées hors ligne, ~360 Ko, sans géocodeur) |
-| Sérialisation | kotlinx-serialization 1.11.0 (routes, export JSON) |
+| Sérialisation | kotlinx-serialization 1.11.0 : routes (`core`), export JSON (`json`, dans `:core:rules`) |
 | SDK | minSdk 29 (minimum pour `ROLE_CALL_SCREENING`), targetSdk 36, compileSdk 37 |
 
 **Contraintes de versions** (détail en tête de `libs.versions.toml`) : AGP plafonné par la
@@ -76,21 +76,29 @@ monter une version.
 **`:core:rules`** — Kotlin/JVM pur, **aucune dépendance Android** (package `fr.moxxie.prefixblock.rules`).
 Toute la logique de décision vit ici et se teste sur la JVM :
 - `Rule`, `RuleList` (BLACKLIST/WHITELIST), `RuleType` (NUMBER/PREFIX/REGEX), `Decision` (Allow/Block).
-- `PhoneNumberNormalizer` → `NormalizedNumber(raw, international, countryCode)`.
+- `PhoneNumberNormalizer` → `NormalizedNumber(raw, international, countryCode)` ; aussi
+  `prefixCoverage` (pays couverts par un préfixe) et `formatForDisplay` (`+870 773 111 632`).
 - `RuleValidator` : normalise la saisie (`00870` → `+870`), valide les regex, refuse une regex
   de blocage qui toucherait tous les pays.
 - `RuleEngine` : instantané immuable et thread-safe (regex précompilées) appliquant le §7.
 - `DefaultRules` : configuration initiale (§8).
+- `RulesBackup` : codec du format d'export JSON v1 (§8). Les entrées mal formées sont ignorées
+  et comptées.
 
 **`:app`** — package `fr.moxxie.prefixblock` :
 - `ui/` : écrans Compose + ViewModels. Convention : `XxxScreen` (avec état, récupère le
   ViewModel par `hiltViewModel()`) → `XxxContent` (sans état, prévisualisable).
   `ui/navigation/` (routes typées, barre de navigation), `ui/theme/`, `ui/components/`.
+  `ui/rules/editor/` : éditeur plein écran (sans barre de navigation). Son ViewModel reçoit ses
+  arguments par injection assistée Hilt (`hiltViewModel<VM, Factory>(creationCallback = …)`).
 - `data/db/` : Room (`rules`, `blocked_calls`). Règles par défaut insérées dans `onCreate` de la
   base. Schéma exporté dans `app/schemas/` : **toute évolution passe par une migration**, jamais
   de migration destructive (elle effacerait les règles de l'utilisateur).
 - `data/rules/` : `RuleRepository` (toute saisie validée par `RuleValidator` ; doublons refusés).
-- `data/history/` : `BlockedCallRepository` (historique des appels rejetés).
+- `data/history/` : `BlockedCallRepository` (historique des appels rejetés : recherche, filtre, suppression).
+- `data/backup/` : export/import par le sélecteur de documents (sans permission de stockage).
+  L'import **ajoute** seulement les règles absentes, validées comme une saisie manuelle.
+- `data/settings/` : réglages DataStore (couleurs dynamiques).
 - `data/region/` (pays du réseau pour la normalisation), `data/role/` (rôle de filtrage).
 - `di/` : modules Hilt ; `@ApplicationScope` = portée de coroutines du processus.
 - `screening/` : filtrage.
@@ -102,6 +110,13 @@ Toute la logique de décision vit ici et se teste sur la JVM :
 
 Conventions :
 - Textes de l'interface dans `res/values/strings.xml` (français par défaut, `tools:locale="fr"`).
+- **Le téléphone de l'utilisateur est en anglais (en-US)** : les textes retombent sur le français,
+  mais le système formaterait en anglais. Tout formatage suit donc la langue des textes
+  (`R.string.app_locale`, `ui/components/AppLocale.kt`), jamais `Locale.getDefault()` :
+  - dates : `formatCallDateTime` ;
+  - noms de pays : `countryName` ;
+  - pluriels : `appPluralStringResource`, pas `pluralStringResource` (en français, 0 est au singulier) ;
+  - début de semaine : `@UiLocale`.
 - Icônes : **Material Symbols en XML** dans `res/drawable/` (pas `material-icons-extended`, déprécié
   et lourd). Source : `https://raw.githubusercontent.com/google/material-design-icons/master/symbols/android/<nom>/materialsymbolsoutlined/<nom>[_fill1]_24px.xml`.
   Retirer l'attribut `android:tint="?attr/colorControlNormal"` (attribut AppCompat absent).
@@ -211,7 +226,7 @@ Exemple : avec +1 en liste blanche et +1876 en liste noire, +1 876 … est bloqu
 | 1. Fondation | Projet, Gradle, MVVM, Navigation Compose, thème Material 3 | **Terminée** : build, tests, lint ; 5 écrans vérifiés sur le S26 Ultra (2026-11-24) |
 | 2. Moteur de règles | Module `:core:rules`, normalisation, Room, listes noire/blanche, moteur de priorité, tests | **Terminée** : 65 tests, lint ; sur le S26 Ultra, base créée avec les 8 règles par défaut, activation persistante après redémarrage (2026-11-24) |
 | 3. Filtrage | `CallScreeningService`, manifeste, demande du rôle, rejet, **test réel sur appareil** | **Terminée** : 89 tests, lint OK ; sur le S26 Ultra (2026-11-24), vrai appel rejeté sans sonnerie (l'appelant entend une sonnerie puis « occupé ») et appel autorisé qui sonne normalement |
-| 4. Interface complète | Accueil, gestion des règles, historique, paramètres, export/import | À faire |
+| 4. Interface complète | Accueil, gestion des règles, historique, paramètres, export/import | **Terminée** : 127 tests, lint OK. Vérifiée sur le S26 Ultra (2026-11-24) : éditeur (validation, pays couverts, ajout/modification/suppression), historique (recherche, filtre, autorisation directe), export/import, couleurs dynamiques. Dernier correctif lint (`LocalConfiguration`) non réinstallé |
 | 5. Détection | Répétitions, campagnes, statistiques, mode observation | À faire |
 | 6. Finalisation | Tests, corrections, R8, optimisation, APK de release signé | À faire |
 

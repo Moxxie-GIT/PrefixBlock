@@ -22,7 +22,7 @@ class RoomBlockedCallRepositoryTest {
         val inserted = mutableListOf<BlockedCallEntity>()
         override suspend fun insert(call: BlockedCallEntity): Long = (inserted.size + 1L).also { inserted += call }
         override fun observeRecent(limit: Int): Flow<List<BlockedCallEntity>> = emptyFlow()
-        override fun observeAll(): Flow<List<BlockedCallEntity>> = emptyFlow()
+        override fun observeFiltered(since: Long, digits: String): Flow<List<BlockedCallEntity>> = emptyFlow()
         override fun observeCountSince(since: Long): Flow<Int> = emptyFlow()
         override suspend fun deleteById(id: Long) = Unit
         override suspend fun deleteAll() = Unit
