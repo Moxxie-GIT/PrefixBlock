@@ -26,7 +26,8 @@ Le problème à résoudre est la nuisance des sonneries, pas le risque de rappel
 
 - Windows 11, Android Studio 2026.1.1 (JDK 21 embarqué), SDK dans `%LOCALAPPDATA%\Android\Sdk`
   (plateformes jusqu'à 37.0). Aucun émulateur installé : tests réels sur le téléphone de
-  l'utilisateur, un **Samsung Galaxy S26 Ultra**.
+  l'utilisateur, un **Samsung Galaxy S26 Ultra** (SM-S948B, Android 17 / API 37, One UI 9.0,
+  1440×3120), branché en débogage USB. Captures : `adb exec-out screencap -p > fichier.png`.
 - `java`, `gradle` et `adb` ne sont pas dans le PATH :
 
 ```bash
@@ -108,6 +109,9 @@ Conventions :
   `shouldAddToCallLog = !skipCallLog || packageType != CARRIER`. Pour une application choisie par
   l'utilisateur, l'appel est donc **toujours** inscrit au journal avec le type `BLOCKED_TYPE`.
   `setSkipCallLog(true)` est envoyé quand même (sans effet sur AOSP ; comportement Samsung à vérifier).
+  **Décision de l'utilisateur (2026-11-24) : option A**, accepter ces entrées « bloqué » dans le journal.
+  Pas de nettoyage du journal (il exigerait `READ_CALL_LOG`/`WRITE_CALL_LOG`) ; à rediscuter
+  seulement si le rendu réel sur le S26 Ultra le justifie.
 - Contacts (vérifié dans AOSP, `startFilterLookup`) : sans `READ_CONTACTS`, Telecom n'appelle pas
   PrefixBlock pour un numéro présent dans les contacts. Ne pas demander cette permission.
   Telecom ne l'appelle pas non plus si un filtre précédent (liste de blocage Android/Samsung) a
@@ -180,12 +184,14 @@ Exemple : avec +1 en liste blanche et +1876 en liste noire, +1 876 … est bloqu
 
 | Phase | Contenu | État |
 |---|---|---|
-| 1. Fondation | Projet, Gradle, MVVM, Navigation Compose, thème Material 3 | Build, tests et lint OK (2026-11-24). **Non vérifiée sur appareil** |
-| 2. Moteur de règles | Module `:core:rules`, normalisation, Room, listes noire/blanche, moteur de priorité, tests | Build, 65 tests et lint OK (2026-11-24). Création de la base + règles par défaut **non vérifiées sur appareil** |
+| 1. Fondation | Projet, Gradle, MVVM, Navigation Compose, thème Material 3 | **Terminée** : build, tests, lint ; 5 écrans vérifiés sur le S26 Ultra (2026-11-24) |
+| 2. Moteur de règles | Module `:core:rules`, normalisation, Room, listes noire/blanche, moteur de priorité, tests | **Terminée** : 65 tests, lint ; sur le S26 Ultra, base créée avec les 8 règles par défaut, activation persistante après redémarrage (2026-11-24) |
 | 3. Filtrage | `CallScreeningService`, manifeste, demande du rôle, rejet, **test réel sur appareil** | À faire |
 | 4. Interface complète | Accueil, gestion des règles, historique, paramètres, export/import | À faire |
 | 5. Détection | Répétitions, campagnes, statistiques, mode observation | À faire |
 | 6. Finalisation | Tests, corrections, R8, optimisation, APK de release signé | À faire |
+
+Un commit par phase validée (demande de l'utilisateur). Les phases 1 et 2 sont dans le commit `689ea97`.
 
 ## 10. Qualité
 
