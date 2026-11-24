@@ -1,0 +1,65 @@
+<?xml version="1.0" encoding="utf-8"?>
+<!-- Langue par défaut de l'application : français. -->
+<resources xmlns:tools="http://schemas.android.com/tools" tools:locale="fr">
+    <string name="app_name" translatable="false">PrefixBlock</string>
+
+    <!-- Navigation -->
+    <string name="nav_dashboard">Accueil</string>
+    <string name="nav_rules">Règles</string>
+    <string name="nav_history">Historique</string>
+    <string name="nav_detection">Détection</string>
+    <string name="nav_settings">Paramètres</string>
+
+    <!-- Tableau de bord -->
+    <string name="dashboard_protection_active_title">Protection active</string>
+    <string name="dashboard_protection_active_body">Les appels correspondant à vos règles sont rejetés avant que le téléphone ne sonne.</string>
+    <string name="dashboard_protection_inactive_title">Protection inactive</string>
+    <string name="dashboard_protection_inactive_body">PrefixBlock n\'est pas l\'application de filtrage des appels de ce téléphone. Aucun appel n\'est filtré.</string>
+    <string name="dashboard_protection_configure">Configurer</string>
+    <string name="dashboard_blocked_calls">Appels bloqués</string>
+    <string name="dashboard_recent_calls">Derniers appels rejetés</string>
+    <string name="dashboard_recent_calls_empty">Aucun appel rejeté pour le moment.</string>
+    <string name="dashboard_quick_access">Accès rapide</string>
+    <string name="dashboard_blacklist_shortcut_body">Préfixes et numéros rejetés</string>
+    <string name="dashboard_whitelist_shortcut_body">Numéros et préfixes toujours autorisés</string>
+
+    <!-- Statistiques -->
+    <string name="stats_today">Aujourd\'hui</string>
+    <string name="stats_this_week">Cette semaine</string>
+    <string name="stats_this_month">Ce mois-ci</string>
+
+    <!-- Règles -->
+    <string name="rules_blacklist">Liste noire</string>
+    <string name="rules_whitelist">Liste blanche</string>
+    <string name="rules_blacklist_empty_title">Aucune règle de blocage</string>
+    <string name="rules_blacklist_empty_body">Les préfixes et numéros ajoutés ici seront rejetés avant que le téléphone ne sonne.</string>
+    <string name="rules_whitelist_empty_title">Aucune autorisation</string>
+    <string name="rules_whitelist_empty_body">Les numéros et préfixes autorisés sont prioritaires sur les règles de blocage.</string>
+    <string name="rules_blacklist_hint">Les appels correspondant à ces règles sont rejetés avant que le téléphone ne sonne.</string>
+    <string name="rules_whitelist_hint">Un numéro complet autorisé passe toujours. Entre deux préfixes, le plus précis l\'emporte : avec +1 autorisé et +1876 bloqué, la Jamaïque reste bloquée.</string>
+    <string name="rule_type_number">Numéro</string>
+    <string name="rule_type_prefix">Préfixe</string>
+    <string name="rule_type_regex">Expression régulière</string>
+    <string name="rule_priority">Prioritaire</string>
+
+    <!-- Historique -->
+    <string name="history_empty_title">Aucun appel bloqué</string>
+    <string name="history_empty_body">Les appels rejetés par PrefixBlock apparaîtront ici.</string>
+
+    <!-- Détection -->
+    <string name="detection_observation_title">Mode observation</string>
+    <string name="detection_observation_body">La détection signale les comportements suspects mais ne bloque jamais un appel d\'elle-même. C\'est vous qui décidez de créer une règle.</string>
+    <string name="detection_empty_title">Aucune campagne détectée</string>
+    <string name="detection_empty_body">Les séries d\'appels suspects (numéros proches, appels courts et répétés) seront signalées ici.</string>
+
+    <!-- Paramètres -->
+    <string name="settings_section_protection">Protection</string>
+    <string name="settings_screening_role">Application de filtrage des appels</string>
+    <string name="settings_screening_role_held">PrefixBlock est l\'application de filtrage active</string>
+    <string name="settings_screening_role_not_held">Non configurée : les appels ne sont pas filtrés</string>
+    <string name="settings_section_privacy">Confidentialité</string>
+    <string name="settings_privacy_offline">Fonctionnement hors ligne</string>
+    <string name="settings_privacy_offline_body">Les règles et l\'historique restent sur ce téléphone. Aucun numéro n\'est transmis à un serveur.</string>
+    <string name="settings_section_about">À propos</string>
+    <string name="settings_version">Version</string>
+</resources>

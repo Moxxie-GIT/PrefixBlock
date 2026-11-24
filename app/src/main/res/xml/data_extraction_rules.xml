@@ -1,0 +1,15 @@
+<?xml version="1.0" encoding="utf-8"?>
+<!--
+  Confidentialité : aucune donnée (règles, historique des numéros) n'est envoyée
+  dans la sauvegarde cloud Google. Le transfert local d'appareil à appareil reste autorisé.
+  La sauvegarde des règles passe par l'export JSON explicite de l'application.
+-->
+<data-extraction-rules>
+    <cloud-backup>
+        <exclude domain="root" />
+        <exclude domain="file" />
+        <exclude domain="database" />
+        <exclude domain="sharedpref" />
+        <exclude domain="external" />
+    </cloud-backup>
+</data-extraction-rules>

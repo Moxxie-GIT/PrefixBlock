@@ -1,0 +1,21 @@
+# Gradle
+.gradle/
+build/
+.kotlin/
+
+# Android Studio / IntelliJ
+*.iml
+.idea/
+captures/
+.externalNativeBuild/
+.cxx/
+
+# Fichiers locaux (chemin du SDK, clés de signature)
+local.properties
+*.jks
+*.keystore
+keystore.properties
+
+# Système
+.DS_Store
+Thumbs.db

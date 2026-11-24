@@ -1,0 +1,6 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+    <color name="ic_launcher_background">#415F91</color>
+    <!-- Fond de fenêtre affiché avant le premier rendu Compose (= surface du thème). -->
+    <color name="window_background">#F9F9FF</color>
+</resources>

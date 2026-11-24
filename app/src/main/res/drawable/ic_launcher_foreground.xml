@@ -1,0 +1,22 @@
+<?xml version="1.0" encoding="utf-8"?>
+<!--
+  Premier plan de l'icône adaptative : bouclier plein avec un combiné téléphonique découpé
+  (fillType evenOdd). Le même calque sert d'icône monochrome (icônes thématiques Android 13+).
+  Tracés issus de Material Symbols (Apache 2.0), combiné réduit à 41,67 % et centré dans le bouclier.
+-->
+<vector xmlns:android="http://schemas.android.com/apk/res/android"
+    android:width="108dp"
+    android:height="108dp"
+    android:viewportWidth="108"
+    android:viewportHeight="108">
+    <group
+        android:scaleX="0.0633"
+        android:scaleY="0.0633"
+        android:translateX="23.62"
+        android:translateY="23.55">
+        <path
+            android:fillColor="#FFFFFF"
+            android:fillType="evenOdd"
+            android:pathData="M480,876Q473,876 467,875Q461,874 455,872Q320,827 240,705.5Q160,584 160,444L160,255Q160,230 174.5,210Q189,190 212,181L452,91Q466,86 480,86Q494,86 508,91L748,181Q771,190 785.5,210Q800,230 800,255L800,444Q800,584 720,705.5Q640,827 505,872Q499,874 493,875Q487,876 480,876Z M612.5,615.0Q560.4,615.0 509.6,592.3Q458.7,569.6 417.1,527.9Q375.4,486.3 352.7,435.4Q330.0,384.6 330.0,332.5Q330.0,325.0 335.0,320.0Q340.0,315.0 347.5,315.0L415.0,315.0Q420.8,315.0 425.4,318.9Q430.0,322.9 430.8,328.3L441.7,386.7Q442.5,393.3 441.2,397.9Q440.0,402.5 436.7,405.8L396.2,446.7Q404.6,462.1 416.0,476.5Q427.5,490.8 441.2,504.2Q454.2,517.1 468.3,528.1Q482.5,539.2 498.3,548.3L537.5,509.2Q541.3,505.4 547.3,503.5Q553.3,501.7 559.2,502.5L616.7,514.2Q622.5,515.8 626.3,520.2Q630.0,524.6 630.0,530.0L630.0,597.5Q630.0,605.0 625.0,610.0Q620.0,615.0 612.5,615.0Z" />
+    </group>
+</vector>

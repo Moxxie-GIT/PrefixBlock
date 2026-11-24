@@ -1,2 +1,11 @@
 # Auto detect text files and perform LF normalization
 * text=auto
+
+# Scripts : fins de ligne imposées quel que soit le système
+gradlew text eol=lf
+*.bat text eol=crlf
+
+# Binaires
+*.jar binary
+*.png binary
+*.webp binary
