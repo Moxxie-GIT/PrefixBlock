@@ -36,6 +36,7 @@ import fr.moxxie.prefixblock.rules.Rule
 import fr.moxxie.prefixblock.rules.RuleList
 import fr.moxxie.prefixblock.rules.RuleType
 import fr.moxxie.prefixblock.ui.components.EmptyState
+import fr.moxxie.prefixblock.ui.components.labelRes
 import fr.moxxie.prefixblock.ui.theme.PrefixBlockTheme
 
 private enum class RulesTab(
@@ -156,13 +157,7 @@ private fun RuleRow(rule: Rule, onToggleEnabled: (Rule, Boolean) -> Unit) {
 
 @Composable
 private fun ruleDescription(rule: Rule): String {
-    val type = stringResource(
-        when (rule.type) {
-            RuleType.NUMBER -> R.string.rule_type_number
-            RuleType.PREFIX -> R.string.rule_type_prefix
-            RuleType.REGEX -> R.string.rule_type_regex
-        },
-    )
+    val type = stringResource(rule.type.labelRes)
     val priority = if (rule.priority) stringResource(R.string.rule_priority) else null
     return listOfNotNull(rule.label, type, priority).joinToString(" · ")
 }

@@ -1,0 +1,16 @@
+<?xml version="1.0" encoding="utf-8"?>
+<manifest xmlns:android="http://schemas.android.com/apk/res/android">
+
+    <application>
+        <!--
+          Commandes de test via adb, version debug uniquement (absent de la version release).
+          La permission DUMP n'est détenue que par le shell adb et le système : aucune autre
+          application ne peut envoyer ces commandes.
+        -->
+        <receiver
+            android:name=".debug.DebugCommandReceiver"
+            android:exported="true"
+            android:permission="android.permission.DUMP" />
+    </application>
+
+</manifest>

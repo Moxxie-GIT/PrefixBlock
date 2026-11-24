@@ -19,6 +19,8 @@
     <string name="dashboard_blocked_calls">Appels bloqués</string>
     <string name="dashboard_recent_calls">Derniers appels rejetés</string>
     <string name="dashboard_recent_calls_empty">Aucun appel rejeté pour le moment.</string>
+    <!-- %1$s : motif de la règle (ex. +870) ; %2$s : type de règle (ex. Préfixe). -->
+    <string name="dashboard_recent_call_rule">Règle %1$s · %2$s</string>
     <string name="dashboard_quick_access">Accès rapide</string>
     <string name="dashboard_blacklist_shortcut_body">Préfixes et numéros rejetés</string>
     <string name="dashboard_whitelist_shortcut_body">Numéros et préfixes toujours autorisés</string>
@@ -56,7 +58,9 @@
     <string name="settings_section_protection">Protection</string>
     <string name="settings_screening_role">Application de filtrage des appels</string>
     <string name="settings_screening_role_held">PrefixBlock est l\'application de filtrage active</string>
-    <string name="settings_screening_role_not_held">Non configurée : les appels ne sont pas filtrés</string>
+    <string name="settings_screening_role_not_held">Non configurée : les appels ne sont pas filtrés. Appuyez pour choisir PrefixBlock.</string>
+    <string name="settings_default_apps">Applications par défaut d\'Android</string>
+    <string name="settings_default_apps_body">Choisir ou retirer l\'application d\'identification de l\'appelant et de spam</string>
     <string name="settings_section_privacy">Confidentialité</string>
     <string name="settings_privacy_offline">Fonctionnement hors ligne</string>
     <string name="settings_privacy_offline_body">Les règles et l\'historique restent sur ce téléphone. Aucun numéro n\'est transmis à un serveur.</string>

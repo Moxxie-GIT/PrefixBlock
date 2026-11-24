@@ -29,7 +29,6 @@ fun PrefixBlockNavHost(
     ) {
         composable<DashboardRoute> {
             DashboardScreen(
-                onConfigureProtection = { navController.navigateToTopLevel(SettingsRoute) },
                 onOpenBlacklist = {
                     navController.navigateToTopLevel(RulesRoute(showWhitelist = false), restoreState = false)
                 },

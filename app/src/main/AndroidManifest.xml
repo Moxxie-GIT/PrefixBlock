@@ -28,6 +28,19 @@
             </intent-filter>
         </activity>
 
+        <!--
+          Filtrage des appels. Telecom ne s'y lie que si l'utilisateur a désigné PrefixBlock
+          pour le rôle ROLE_CALL_SCREENING ; la permission empêche toute autre application de s'y lier.
+        -->
+        <service
+            android:name=".screening.PrefixBlockScreeningService"
+            android:exported="true"
+            android:permission="android.permission.BIND_SCREENING_SERVICE">
+            <intent-filter>
+                <action android:name="android.telecom.CallScreeningService" />
+            </intent-filter>
+        </service>
+
     </application>
 
 </manifest>

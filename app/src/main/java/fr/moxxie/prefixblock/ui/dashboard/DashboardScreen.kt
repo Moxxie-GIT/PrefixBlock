@@ -1,5 +1,6 @@
 package fr.moxxie.prefixblock.ui.dashboard
 
+import android.text.format.DateUtils
 import androidx.annotation.StringRes
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Column
@@ -24,6 +25,7 @@ import androidx.compose.material3.Text
 import androidx.compose.material3.TopAppBar
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.getValue
+import androidx.compose.runtime.remember
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
@@ -37,22 +39,27 @@ import androidx.lifecycle.Lifecycle
 import androidx.lifecycle.compose.LifecycleEventEffect
 import androidx.lifecycle.compose.collectAsStateWithLifecycle
 import fr.moxxie.prefixblock.R
+import fr.moxxie.prefixblock.data.history.BlockedCall
+import fr.moxxie.prefixblock.rules.RuleType
 import fr.moxxie.prefixblock.ui.components.SectionHeader
+import fr.moxxie.prefixblock.ui.components.labelRes
+import fr.moxxie.prefixblock.ui.components.rememberScreeningRoleRequest
 import fr.moxxie.prefixblock.ui.theme.PrefixBlockTheme
+import java.text.DateFormat
 
 @Composable
 fun DashboardScreen(
-    onConfigureProtection: () -> Unit,
     onOpenBlacklist: () -> Unit,
     onOpenWhitelist: () -> Unit,
     viewModel: DashboardViewModel = hiltViewModel(),
 ) {
     val uiState by viewModel.uiState.collectAsStateWithLifecycle()
-    LifecycleEventEffect(Lifecycle.Event.ON_RESUME) { viewModel.refreshProtectionStatus() }
+    LifecycleEventEffect(Lifecycle.Event.ON_RESUME) { viewModel.refresh() }
+    val requestScreeningRole = rememberScreeningRoleRequest(onResult = viewModel::refresh)
 
     DashboardContent(
         uiState = uiState,
-        onConfigureProtection = onConfigureProtection,
+        onConfigureProtection = requestScreeningRole,
         onOpenBlacklist = onOpenBlacklist,
         onOpenWhitelist = onOpenWhitelist,
     )
@@ -92,11 +99,17 @@ fun DashboardContent(
             }
             item {
                 SectionHeader(stringResource(R.string.dashboard_recent_calls))
-                Text(
-                    text = stringResource(R.string.dashboard_recent_calls_empty),
-                    style = MaterialTheme.typography.bodyMedium,
-                    color = MaterialTheme.colorScheme.onSurfaceVariant,
-                )
+                if (uiState.recentCalls.isEmpty()) {
+                    Text(
+                        text = stringResource(R.string.dashboard_recent_calls_empty),
+                        style = MaterialTheme.typography.bodyMedium,
+                        color = MaterialTheme.colorScheme.onSurfaceVariant,
+                    )
+                } else {
+                    OutlinedCard(modifier = Modifier.fillMaxWidth()) {
+                        uiState.recentCalls.forEach { call -> RecentCallRow(call) }
+                    }
+                }
             }
             item {
                 SectionHeader(stringResource(R.string.dashboard_quick_access))
@@ -187,6 +200,23 @@ private fun StatTile(value: Int, @StringRes label: Int, modifier: Modifier = Mod
 }
 
 @Composable
+private fun RecentCallRow(call: BlockedCall) {
+    val time = remember(call.timestamp) {
+        DateUtils.formatSameDayTime(call.timestamp, System.currentTimeMillis(), DateFormat.SHORT, DateFormat.SHORT)
+            .toString()
+    }
+    ListItem(
+        headlineContent = { Text(call.number) },
+        supportingContent = {
+            Text(stringResource(R.string.dashboard_recent_call_rule, call.rulePattern, stringResource(call.ruleType.labelRes)))
+        },
+        trailingContent = { Text(time, style = MaterialTheme.typography.labelMedium) },
+        leadingContent = { Icon(painterResource(R.drawable.ic_phone_disabled), contentDescription = null) },
+        colors = ListItemDefaults.colors(containerColor = Color.Transparent),
+    )
+}
+
+@Composable
 private fun ShortcutCard(icon: Int, @StringRes title: Int, @StringRes body: Int, onClick: () -> Unit) {
     OutlinedCard(onClick = onClick, modifier = Modifier.fillMaxWidth()) {
         ListItem(
@@ -211,7 +241,15 @@ private fun DashboardInactivePreview() {
 private fun DashboardActivePreview() {
     PrefixBlockTheme {
         DashboardContent(
-            DashboardUiState(protectionActive = true, blockedToday = 3, blockedThisWeek = 17, blockedThisMonth = 52),
+            DashboardUiState(
+                protectionActive = true,
+                blockedToday = 1,
+                blockedThisWeek = 4,
+                blockedThisMonth = 9,
+                recentCalls = listOf(
+                    BlockedCall(1, System.currentTimeMillis(), "+870773111632", 870, 1, "+870", RuleType.PREFIX),
+                ),
+            ),
             {}, {}, {},
         )
     }

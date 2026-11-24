@@ -14,6 +14,9 @@ interface BlockedCallDao {
     @Query("SELECT * FROM blocked_calls ORDER BY timestamp DESC")
     fun observeAll(): Flow<List<BlockedCallEntity>>
 
+    @Query("SELECT * FROM blocked_calls ORDER BY timestamp DESC LIMIT :limit")
+    fun observeRecent(limit: Int): Flow<List<BlockedCallEntity>>
+
     @Query("SELECT COUNT(*) FROM blocked_calls WHERE timestamp >= :since")
     fun observeCountSince(since: Long): Flow<Int>
 

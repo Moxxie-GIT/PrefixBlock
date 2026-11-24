@@ -1,5 +1,6 @@
 package fr.moxxie.prefixblock.ui.settings
 
+import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.material3.ExperimentalMaterial3Api
@@ -11,6 +12,7 @@ import androidx.compose.material3.TopAppBar
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.getValue
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.unit.dp
@@ -20,17 +22,32 @@ import androidx.lifecycle.compose.LifecycleEventEffect
 import androidx.lifecycle.compose.collectAsStateWithLifecycle
 import fr.moxxie.prefixblock.R
 import fr.moxxie.prefixblock.ui.components.SectionHeader
+import fr.moxxie.prefixblock.ui.components.openDefaultAppsSettings
+import fr.moxxie.prefixblock.ui.components.rememberScreeningRoleRequest
 
 @Composable
 fun SettingsScreen(viewModel: SettingsViewModel = hiltViewModel()) {
     val uiState by viewModel.uiState.collectAsStateWithLifecycle()
     LifecycleEventEffect(Lifecycle.Event.ON_RESUME) { viewModel.refreshRoleStatus() }
-    SettingsContent(uiState)
+    val context = LocalContext.current
+    val requestScreeningRole = rememberScreeningRoleRequest(onResult = viewModel::refreshRoleStatus)
+    SettingsContent(
+        uiState = uiState,
+        onScreeningRoleClick = {
+            if (uiState.screeningRoleHeld) context.openDefaultAppsSettings() else requestScreeningRole()
+        },
+        onOpenDefaultApps = context::openDefaultAppsSettings,
+    )
 }
 
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
-fun SettingsContent(uiState: SettingsUiState, modifier: Modifier = Modifier) {
+fun SettingsContent(
+    uiState: SettingsUiState,
+    onScreeningRoleClick: () -> Unit,
+    onOpenDefaultApps: () -> Unit,
+    modifier: Modifier = Modifier,
+) {
     Scaffold(
         topBar = { TopAppBar(title = { Text(stringResource(R.string.nav_settings)) }) },
         modifier = modifier,
@@ -49,6 +66,15 @@ fun SettingsContent(uiState: SettingsUiState, modifier: Modifier = Modifier) {
                         )
                     },
                     leadingContent = { Icon(painterResource(R.drawable.ic_shield), contentDescription = null) },
+                    modifier = Modifier.clickable(onClick = onScreeningRoleClick),
+                )
+            }
+            item {
+                ListItem(
+                    headlineContent = { Text(stringResource(R.string.settings_default_apps)) },
+                    supportingContent = { Text(stringResource(R.string.settings_default_apps_body)) },
+                    leadingContent = { Icon(painterResource(R.drawable.ic_settings), contentDescription = null) },
+                    modifier = Modifier.clickable(onClick = onOpenDefaultApps),
                 )
             }
 

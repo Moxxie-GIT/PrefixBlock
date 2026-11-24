@@ -37,6 +37,19 @@ export JAVA_HOME="/c/Program Files/Android/Android Studio/jbr"
 ./gradlew :core:rules:test       # moteur de règles seul (rapide)
 ./gradlew lintDebug              # rapport : app/build/reports/lint-results-debug.txt
 ADB="$LOCALAPPDATA/Android/Sdk/platform-tools/adb.exe"
+"$ADB" install -r app/build/outputs/apk/debug/app-debug.apk
+"$ADB" logcat -s PrefixBlockScreening PrefixBlockDebug   # décisions du filtrage (debug, sans numéro)
+```
+
+Commandes de test sur appareil (**version debug uniquement**, `app/src/debug/`, réservées à adb par la
+permission `DUMP`). Le résultat s'affiche dans `data="…"` :
+
+```bash
+R="-n fr.moxxie.prefixblock/.debug.DebugCommandReceiver -a fr.moxxie.prefixblock.debug"
+MSYS_NO_PATHCONV=1 "$ADB" shell "am broadcast $R.SCREEN --es number '00870773111632'"  # décision simulée
+"$ADB" shell am broadcast $R.LIST_RULES
+"$ADB" shell am broadcast $R.ADD_RULE --es list BLACKLIST --es type NUMBER --es pattern +590690123456
+"$ADB" shell am broadcast $R.DELETE_RULE --el id 12
 ```
 
 ## 3. Stack technique
@@ -77,9 +90,15 @@ Toute la logique de décision vit ici et se teste sur la JVM :
   base. Schéma exporté dans `app/schemas/` : **toute évolution passe par une migration**, jamais
   de migration destructive (elle effacerait les règles de l'utilisateur).
 - `data/rules/` : `RuleRepository` (toute saisie validée par `RuleValidator` ; doublons refusés).
+- `data/history/` : `BlockedCallRepository` (historique des appels rejetés).
 - `data/region/` (pays du réseau pour la normalisation), `data/role/` (rôle de filtrage).
-- `di/` : modules Hilt.
-- `screening/` (phase 3) : `CallScreeningService`.
+- `di/` : modules Hilt ; `@ApplicationScope` = portée de coroutines du processus.
+- `screening/` : filtrage.
+  - `PrefixBlockScreeningService` : seule classe liée à Telecom ; convertit `Call.Details` → `IncomingCall`.
+  - `FailOpenScreening` : une seule réponse, autorisation si erreur ou au-delà de 2 s.
+  - `CallScreener` : décision, sans Android.
+  - `RuleEngineProvider` : moteur en mémoire, recompilé à chaque changement de règle.
+- `app/src/debug/` : `DebugCommandReceiver` (commandes adb ci-dessus), absent de la release.
 
 Conventions :
 - Textes de l'interface dans `res/values/strings.xml` (français par défaut, `tools:locale="fr"`).
@@ -112,6 +131,11 @@ Conventions :
   **Décision de l'utilisateur (2026-11-24) : option A**, accepter ces entrées « bloqué » dans le journal.
   Pas de nettoyage du journal (il exigerait `READ_CALL_LOG`/`WRITE_CALL_LOG`) ; à rediscuter
   seulement si le rendu réel sur le S26 Ultra le justifie.
+  **Vérifié sur le S26 Ultra (2026-11-24)** : Samsung ignore aussi `setSkipCallLog` (`SkipSuppressed`)
+  et inscrit l'appel avec `CallType: BLOCKED`, `CallBlockReason: CALL_SCREENING_SERVICE`, `PrefixBlock`.
+- Samsung exécute son propre filtre (`com.samsung.android.incallui/…CallScreeningServiceImpl`) **après**
+  PrefixBlock : la protection anti-spam de l'application Téléphone n'est pas remplacée (vérifié).
+- Temps de décision mesuré sur appareil, process déjà démarré : 2 à 3 ms (budget interne 2 s).
 - Contacts (vérifié dans AOSP, `startFilterLookup`) : sans `READ_CONTACTS`, Telecom n'appelle pas
   PrefixBlock pour un numéro présent dans les contacts. Ne pas demander cette permission.
   Telecom ne l'appelle pas non plus si un filtre précédent (liste de blocage Android/Samsung) a
@@ -186,12 +210,12 @@ Exemple : avec +1 en liste blanche et +1876 en liste noire, +1 876 … est bloqu
 |---|---|---|
 | 1. Fondation | Projet, Gradle, MVVM, Navigation Compose, thème Material 3 | **Terminée** : build, tests, lint ; 5 écrans vérifiés sur le S26 Ultra (2026-11-24) |
 | 2. Moteur de règles | Module `:core:rules`, normalisation, Room, listes noire/blanche, moteur de priorité, tests | **Terminée** : 65 tests, lint ; sur le S26 Ultra, base créée avec les 8 règles par défaut, activation persistante après redémarrage (2026-11-24) |
-| 3. Filtrage | `CallScreeningService`, manifeste, demande du rôle, rejet, **test réel sur appareil** | À faire |
+| 3. Filtrage | `CallScreeningService`, manifeste, demande du rôle, rejet, **test réel sur appareil** | **Terminée** : 89 tests, lint OK ; sur le S26 Ultra (2026-11-24), vrai appel rejeté sans sonnerie (l'appelant entend une sonnerie puis « occupé ») et appel autorisé qui sonne normalement |
 | 4. Interface complète | Accueil, gestion des règles, historique, paramètres, export/import | À faire |
 | 5. Détection | Répétitions, campagnes, statistiques, mode observation | À faire |
 | 6. Finalisation | Tests, corrections, R8, optimisation, APK de release signé | À faire |
 
-Un commit par phase validée (demande de l'utilisateur). Les phases 1 et 2 sont dans le commit `689ea97`.
+Un commit par phase validée (demande de l'utilisateur).
 
 ## 10. Qualité
 
